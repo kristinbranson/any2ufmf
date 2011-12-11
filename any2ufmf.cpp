@@ -21,7 +21,8 @@ int main(int argc, char * argv){
 	unsigned __int32 frameW = (unsigned __int32) cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
 
 	// log file
-	FILE * logFID = fopen("C:\\Code\\imaq\\any2ufmf\\out\\log.txt","w");
+	//FILE * logFID = fopen("C:\\Code\\imaq\\any2ufmf\\out\\log.txt","w");
+	FILE * logFID = stderr;
 
 	// output ufmf
 	ufmfWriter * writer = new ufmfWriter("C:\\Code\\imaq\\any2ufmf\\out\\test1.ufmf", frameW, frameH, logFID, "C:\\Code\\imaq\\gige_record_x64\\testVideoParams.txt");
@@ -44,34 +45,39 @@ int main(int argc, char * argv){
 	IplImage * grayFrame = cvCreateImage(cvSize(frameW,frameH),IPL_DEPTH_8U,1);
 
 	fprintf(stderr,"Hit esc to stop playing\n");
+	bool DEBUGFAST = true;
 	for(frameNumber = 0, timestamp = 0; ; timestamp += frameRate){
+
+		if(DEBUGFAST && frameNumber >= 3000)
+			break;
 
 		if((frameNumber % 100) == 0){
 			fprintf(stderr,"** frame %lu\n",frameNumber);
 		}
 
-		if(WaitForSingleObject(lock, MAXWAITTIMEMS) != WAIT_OBJECT_0) { 
+		if(!DEBUGFAST && (WaitForSingleObject(lock, MAXWAITTIMEMS) != WAIT_OBJECT_0)) { 
 			fprintf(stderr,"Error waiting for preview thread to unlock\n");
 			break;
 		}
-		frame = cvQueryFrame(capture);
+		if(!DEBUGFAST || (frame == NULL))
+			frame = cvQueryFrame(capture);
 		frameNumber++;
+		if(!DEBUGFAST) ReleaseSemaphore(lock,1,NULL);
 		if(!frame){
-			ReleaseSemaphore(lock,1,NULL);
 			break;
 		}
-		if(!preview->setFrame(frame,frameNumber)){
-			ReleaseSemaphore(lock,1,NULL);
+		if(!DEBUGFAST && !preview->setFrame(frame,frameNumber)){
 			break;
 		}
-		ReleaseSemaphore(lock,1,NULL);
 		
-		if(frame->nChannels > 1){
-			cvCvtColor(frame,grayFrame,CV_RGB2GRAY);
-			frameWrite = grayFrame;
-		}
-		else{
-			frameWrite = frame;
+		if(!DEBUGFAST || frameWrite == NULL){
+			if(frame->nChannels > 1){
+				cvCvtColor(frame,grayFrame,CV_RGB2GRAY);
+				frameWrite = grayFrame;
+			}
+			else{
+				frameWrite = frame;
+			}
 		}
 		if(!writer->addFrame((unsigned char*) frameWrite->imageData,timestamp)){
 			fprintf(stderr,"Error adding frame %d\n",frameNumber);
@@ -103,14 +109,14 @@ int main(int argc, char * argv){
 	if(capture != NULL){
 		cvReleaseCapture(&capture);
 		capture = NULL;
+		frame = NULL;
 	}
-	//if(frame != NULL){
-	//	cvReleaseImage(&frame);
-	//	frame = NULL;
-	//}
 	if(grayFrame != NULL){
 		cvReleaseImage(&grayFrame);
 		grayFrame = NULL;
+	}
+	if(writer != NULL){
+		delete writer;
 	}
 
 	fprintf(stderr,"Hit enter to exit\n");
