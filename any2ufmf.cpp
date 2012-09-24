@@ -4,16 +4,31 @@
 #include "ufmfWriter.h"
 #include "previewVideo.h"
 
+bool ChooseFile(char aviFileName[],const char[]);
+
 int main(int argc, char * argv){
 
 
 	double timestamp;
 	double frameRate = 1.0/30.0;
+	char aviFileName[260];
+	char ufmfFileName[260];
+	char ufmfParamsFileName[260];
 
-	fprintf(stderr,"Driving!\n");
+	ChooseFile(aviFileName,"AVI");
 
 	// input avi
-	CvCapture* capture = cvCaptureFromAVI("C:\\Code\\imaq\\any2ufmf\\out\\test1.avi");
+	CvCapture* capture = cvCaptureFromAVI(aviFileName);
+	if(capture==NULL){
+		fprintf(stderr,"Error reading AVI %s. Exiting.\n",aviFileName);
+		getc(stdin);
+		return 1;
+	}
+	// output ufmf
+	ChooseFile(ufmfFileName,"UFMF");
+
+	// parameters
+	ChooseFile(ufmfParamsFileName,"UFMF Compression Parameters file");
 
 	// get avi frame size
 	cvQueryFrame(capture); // this call is necessary to get correct capture properties
@@ -25,7 +40,7 @@ int main(int argc, char * argv){
 	FILE * logFID = stderr;
 
 	// output ufmf
-	ufmfWriter * writer = new ufmfWriter("C:\\Code\\imaq\\any2ufmf\\out\\test1.ufmf", frameW, frameH, logFID, "C:\\Code\\imaq\\gige_record_x64\\testVideoParams.txt");
+	ufmfWriter * writer = new ufmfWriter(ufmfFileName, frameW, frameH, logFID, ufmfParamsFileName);
 
 	// start preview thread
 	HANDLE lock = CreateSemaphore(NULL,1,1,NULL);
@@ -45,7 +60,7 @@ int main(int argc, char * argv){
 	IplImage * grayFrame = cvCreateImage(cvSize(frameW,frameH),IPL_DEPTH_8U,1);
 
 	fprintf(stderr,"Hit esc to stop playing\n");
-	bool DEBUGFAST = true;
+	bool DEBUGFAST = false;
 	for(frameNumber = 0, timestamp = 0; ; timestamp += frameRate){
 
 		if(DEBUGFAST && frameNumber >= 3000)
@@ -122,5 +137,12 @@ int main(int argc, char * argv){
 	fprintf(stderr,"Hit enter to exit\n");
 	getc(stdin);
 
+	return 0;
+}
+
+
+bool ChooseFile(char aviFileName[], const char fileType[]){
+	fprintf(stderr,"Enter the full path to the %s file: ",fileType);
+	gets(aviFileName);
 	return 0;
 }
