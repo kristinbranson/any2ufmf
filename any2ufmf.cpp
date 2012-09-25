@@ -6,7 +6,7 @@
 
 bool ChooseFile(char aviFileName[],const char[]);
 
-int main(int argc, char * argv){
+int main(int argc, char * argv[]){
 
 
 	double timestamp;
@@ -14,21 +14,45 @@ int main(int argc, char * argv){
 	char aviFileName[260];
 	char ufmfFileName[260];
 	char ufmfParamsFileName[260];
+	bool interactiveMode = argc <= 3;
 
-	ChooseFile(aviFileName,"AVI");
+	// first argument is the input AVI
+	if(argc > 1){
+		strcpy(aviFileName,argv[1]);
+		fprintf(stdout,"Input AVI file = %s\n",aviFileName);
+	}
+	else{
+		ChooseFile(aviFileName,"AVI");
+	}
 
 	// input avi
 	CvCapture* capture = cvCaptureFromAVI(aviFileName);
 	if(capture==NULL){
 		fprintf(stderr,"Error reading AVI %s. Exiting.\n",aviFileName);
-		getc(stdin);
+		if(interactiveMode){
+			fprintf(stderr,"Hit enter to exit\n");
+			getc(stdin);
+		}
 		return 1;
 	}
+
 	// output ufmf
-	ChooseFile(ufmfFileName,"UFMF");
+	if(argc > 2){
+		strcpy(ufmfFileName,argv[2]);
+		fprintf(stdout,"Output UFMF file = %s\n",ufmfFileName);
+	}
+	else{
+		ChooseFile(ufmfFileName,"UFMF");
+	}
 
 	// parameters
-	ChooseFile(ufmfParamsFileName,"UFMF Compression Parameters file");
+	if(argc > 3){
+		strcpy(ufmfParamsFileName,argv[3]);
+		fprintf(stdout,"UFMF Compression Parameters file = %s\n",ufmfParamsFileName);
+	}
+	else{
+		ChooseFile(ufmfParamsFileName,"UFMF Compression Parameters file");
+	}
 
 	// get avi frame size
 	cvQueryFrame(capture); // this call is necessary to get correct capture properties
@@ -49,8 +73,10 @@ int main(int argc, char * argv){
 	// start writing
 	if(!writer->startWrite()){
 		fprintf(stderr,"Error starting write\n");
-		fprintf(stderr,"Hit enter to exit\n");
-		getc(stdin);
+		if(interactiveMode){
+			fprintf(stderr,"Hit enter to exit\n");
+			getc(stdin);
+		}
 		return 1;
 	}
 
@@ -103,8 +129,10 @@ int main(int argc, char * argv){
 
 	if(!writer->stopWrite()){
 		fprintf(stderr,"Error stopping writing\n");
-		fprintf(stderr,"Hit enter to exit\n");
-		getc(stdin);
+		if(interactiveMode){
+			fprintf(stderr,"Hit enter to exit\n");
+			getc(stdin);
+		}
 		return 1;
 	}
 
@@ -134,8 +162,10 @@ int main(int argc, char * argv){
 		delete writer;
 	}
 
-	fprintf(stderr,"Hit enter to exit\n");
-	getc(stdin);
+	if(interactiveMode){
+		fprintf(stderr,"Hit enter to exit\n");
+		getc(stdin);
+	}
 
 	return 0;
 }
