@@ -58,6 +58,8 @@ int main(int argc, char * argv[]){
 	cvQueryFrame(capture); // this call is necessary to get correct capture properties
 	unsigned __int32 frameH = (unsigned __int32) cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
 	unsigned __int32 frameW = (unsigned __int32) cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
+	double nFrames = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_COUNT);
+	fprintf(stderr,"Number of frames in the video: %f\n",nFrames);
 
 	// log file
 	//FILE * logFID = fopen("C:\\Code\\imaq\\any2ufmf\\out\\log.txt","w");
@@ -105,6 +107,7 @@ int main(int argc, char * argv[]){
 		frameNumber++;
 		if(!DEBUGFAST) ReleaseSemaphore(lock,1,NULL);
 		if(!frame){
+			fprintf(stderr,"Last frame read = %d\n",frameNumber);
 			break;
 		}
 		if(!DEBUGFAST && !preview->setFrame(frame,frameNumber)){
