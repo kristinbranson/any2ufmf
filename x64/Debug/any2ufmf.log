@@ -1,23 +1,34 @@
-﻿Build started 11/7/2012 10:23:51 AM.
-     1>Project "C:\Code\imaq\any2ufmf\any2ufmf.vcxproj" on node 2 (build target(s)).
+﻿Build started 12/18/2013 9:43:17 PM.
+     1>Project "C:\Users\benderj\src\any2ufmf\any2ufmf.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Touching "x64\Debug\any2ufmf.unsuccessfulbuild".
+         Creating "x64\Debug\any2ufmf.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W1 /WX- /Od /D _MBCS /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt any2ufmf.cpp
-         any2ufmf.cpp
+         All outputs are up-to-date.
        Link:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Code\imaq\any2ufmf\x64\Debug\any2ufmf.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib opencv_core230d.lib opencv_ml230d.lib opencv_highgui230d.lib opencv_imgproc230d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\any2ufmf.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Code\imaq\any2ufmf\x64\Debug\any2ufmf.pdb" /ASSEMBLYDEBUG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Code\imaq\any2ufmf\x64\Debug\any2ufmf.lib" /MACHINE:X64 x64\Debug\previewVideo.obj
-         x64\Debug\ufmfWriter.obj
-         x64\Debug\any2ufmf.obj
-         LINK : C:\Code\imaq\any2ufmf\x64\Debug\any2ufmf.exe not found or not built by the last incremental link; performing full link
-         any2ufmf.vcxproj -> C:\Code\imaq\any2ufmf\x64\Debug\any2ufmf.exe
-       Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Code\imaq\any2ufmf\x64\Debug\any2ufmf.exe;#1" /manifest x64\Debug\any2ufmf.exe.intermediate.manifest
+         All outputs are up-to-date.
+         any2ufmf.vcxproj -> C:\Users\benderj\src\any2ufmf\x64\Debug\any2ufmf.exe
+       PostBuildEvent:
+         copy /Y C:\Users\benderj\src\any2ufmf\opencv_dlls\*247d.dll C:\Users\benderj\src\any2ufmf\x64\Debug\ & copy /Y C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_ffmpeg247_64.dll C:\Users\benderj\src\any2ufmf\x64\Debug\
+         :VCEnd
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_calib3d247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_contrib247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_core247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_features2d247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_flann247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_gpu247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_highgui247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_imgproc247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_legacy247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_ml247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_objdetect247d.dll
+         C:\Users\benderj\src\any2ufmf\opencv_dlls\opencv_video247d.dll
+                12 file(s) copied.
+                 1 file(s) copied.
        FinalizeBuildStatus:
          Deleting file "x64\Debug\any2ufmf.unsuccessfulbuild".
          Touching "x64\Debug\any2ufmf.lastbuildstate".
-     1>Done Building Project "C:\Code\imaq\any2ufmf\any2ufmf.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\benderj\src\any2ufmf\any2ufmf.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.72
+Time Elapsed 00:00:00.91

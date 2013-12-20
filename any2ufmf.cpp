@@ -51,7 +51,7 @@ int main(int argc, char * argv[]){
 		fprintf(stdout,"UFMF Compression Parameters file = %s\n",ufmfParamsFileName);
 	}
 	else{
-		ChooseFile(ufmfParamsFileName,"UFMF Compression Parameters file");
+		ChooseFile(ufmfParamsFileName,"UFMF Compression Parameters");
 	}
 
 	// get avi frame size
