@@ -3,6 +3,13 @@
 #include <stdio.h>
 #include "ufmfWriter.h"
 #include "previewVideo.h"
+#include "CommonFileDialogApp.h"
+
+const COMDLG_FILTERSPEC c_rgSaveTypes[] =
+{
+    {L"Audio-video Interleave Files (*.avi)",       L"*.avi"},
+    {L"All Documents (*.*)",					    L"*.*"}
+};
 
 bool ChooseFile(char aviFileName[],const char[]);
 
@@ -11,8 +18,8 @@ int main(int argc, char * argv[]){
 
 	double timestamp;
 	double frameRate = 1.0/30.0;
-	char aviFileName[260];
-	char ufmfFileName[260];
+	char aviFileName[512];
+	char ufmfFileName[512];
 	char ufmfParamsFileName[260];
 	bool interactiveMode = argc <= 3;
 
@@ -175,7 +182,150 @@ int main(int argc, char * argv[]){
 
 
 bool ChooseFile(char aviFileName[], const char fileType[]){
-	fprintf(stderr,"Enter the full path to the %s file: ",fileType);
-	gets(aviFileName);
+	HRESULT hr;
+
+    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+        COINIT_DISABLE_OLE1DDE);
+    if (SUCCEEDED(hr))
+    {
+        IFileOpenDialog *pFileOpen;
+
+        // Create the FileOpenDialog object.
+        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, 
+                IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+        if (SUCCEEDED(hr))
+        {
+            // Show the Open dialog box.
+            hr = pFileOpen->Show(NULL);
+
+            // Get the file name from the dialog box.
+            if (SUCCEEDED(hr))
+            {
+                IShellItem *pItem;
+                hr = pFileOpen->GetResult(&pItem);
+                if (SUCCEEDED(hr))
+                {
+                    PWSTR pszFilePath;
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                    // Display the file name to the user.
+                    if (SUCCEEDED(hr))
+                    {
+                        WideCharToMultiByte( CP_ACP, WC_COMPOSITECHECK, pszFilePath, -1, aviFileName, 512, NULL, NULL );
+                        CoTaskMemFree(pszFilePath);
+                    }
+                    pItem->Release();
+                }
+            }
+            pFileOpen->Release();
+        }
+        CoUninitialize();
+    }
+
+    /*
+	IFileDialog *fileDialog = NULL;
+    hr = CoCreateInstance(CLSID_FileOpenDialog, 
+                          NULL, 
+                          CLSCTX_INPROC_SERVER, 
+                          IID_PPV_ARGS(&fileDialog));
+    if (SUCCEEDED(hr))
+	{
+        // Create an event handling object, and hook it up to the dialog.
+        IFileDialogEvents *eventHandler = NULL;
+        hr = CDialogEventHandler_CreateInstance(IID_PPV_ARGS(&eventHandler));
+        if (SUCCEEDED(hr))
+        {
+            // Hook up the event handler.
+            DWORD dwCookie;
+            hr = fileDialog->Advise(eventHandler, &dwCookie);
+            if (SUCCEEDED(hr))
+            {
+                // Set the options on the dialog.
+                DWORD dwFlags;
+
+                // Before setting, always get the options first in order 
+                // not to override existing options.
+                hr = fileDialog->GetOptions(&dwFlags);
+                if (SUCCEEDED(hr))
+                {
+                    // In this case, get shell items only for file system items.
+                    hr = fileDialog->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
+                    if (SUCCEEDED(hr))
+                    {
+                        // Set the file types to display only. 
+                        // Notice that this is a 1-based array.
+                        hr = fileDialog->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
+                        if (SUCCEEDED(hr))
+                        {
+                            // Set the selected file type index to Word Docs for this example.
+                            hr = fileDialog->SetFileTypeIndex(1);
+                            if (SUCCEEDED(hr))
+                            {
+                                // Set the default extension to be ".doc" file.
+                                hr = fileDialog->SetDefaultExtension(L"avi");
+                                if (SUCCEEDED(hr))
+                                {
+                                    // Show the dialog
+                                    hr = fileDialog->Show(NULL);
+                                    if (SUCCEEDED(hr))
+                                    {
+                                        // Obtain the result once the user clicks 
+                                        // the 'Open' button.
+                                        // The result is an IShellItem object.
+                                        IShellItem *psiResult;
+                                        hr = fileDialog->GetResult(&psiResult);
+                                        if (SUCCEEDED(hr))
+                                        {
+                                            // We are just going to print out the 
+                                            // name of the file for sample sake.
+                                            PWSTR pszFilePath = NULL;
+                                            hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, 
+                                                               &pszFilePath);
+                                            if (SUCCEEDED(hr))
+                                            {
+                                                TaskDialog(NULL,
+                                                           NULL,
+                                                           L"CommonFileDialogApp",
+                                                           pszFilePath,
+                                                           NULL,
+                                                           TDCBF_OK_BUTTON,
+                                                           TD_INFORMATION_ICON,
+                                                           NULL);
+                                                CoTaskMemFree(pszFilePath);
+                                            }
+                                            else fprintf( stderr, "failure 11\n" );
+                                            psiResult->Release();
+                                        }
+                                        else fprintf( stderr, "failure 10\n" );
+                                    }
+                                    else fprintf( stderr, "failure 9\n" );
+                                }
+                                else fprintf( stderr, "failure 8\n" );
+                            }
+                            else fprintf( stderr, "failure 7\n" );
+                        }
+                        else fprintf( stderr, "failure 6\n" );
+                    }
+                    else fprintf( stderr, "failure 5\n" );
+                }
+                else fprintf( stderr, "failure 4\n" );
+                // Unhook the event handler.
+                fileDialog->Unadvise(dwCookie);
+            }
+            else fprintf( stderr, "failure 3\n" );
+            eventHandler->Release();
+		}
+        else fprintf( stderr, "failure 2\n" );
+		fileDialog->Release();
+	}
+    else fprintf( stderr, "failure 1\n" );
+    */
+
+	if (FAILED(hr)) {
+		fprintf(stderr,"Enter the full path to the %s file: ",fileType);
+		gets(aviFileName);
+	}
+
 	return 0;
 }

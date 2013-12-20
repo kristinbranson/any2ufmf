@@ -97,7 +97,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opencv_core247d.lib;opencv_ml247d.lib;opencv_highgui247d.lib;opencv_imgproc247d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>propsys.lib;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opencv_core247d.lib;opencv_ml247d.lib;opencv_highgui247d.lib;opencv_imgproc247d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AssemblyDebug>true</AssemblyDebug>
     </Link>
     <PostBuildEvent>
@@ -138,12 +138,14 @@
     <ClCompile Include="..\gige_record_x64\previewVideo.cpp" />
     <ClCompile Include="..\gige_record_x64\ufmfWriter.cpp" />
     <ClCompile Include="any2ufmf.cpp" />
+    <ClCompile Include="CommonFileDialogApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\gige_record_x64\previewVideo.h" />
     <ClInclude Include="..\gige_record_x64\ufmfLogger.h" />
     <ClInclude Include="..\gige_record_x64\ufmfWriter.h" />
     <ClInclude Include="..\gige_record_x64\ufmfWriterStats.h" />
+    <ClInclude Include="CommonFileDialogApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
