@@ -1,17 +1,22 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <shobjidl.h>     // for IFileDialogEvents and IFileDialogControlEvents
+#include <objbase.h>      // For COM headers
+
 #include "cv.h"
 #include "highgui.h"
 #include "ufmfWriter.h"
 #include "previewVideo.h"
-#include <shobjidl.h>     // for IFileDialogEvents and IFileDialogControlEvents
-#include <objbase.h>      // For COM headers
 
 typedef enum {
     DialogTypeInput,
     DialogTypeOutput
 } DialogType;
 
-bool ChooseFile(char fileName[], const COMDLG_FILTERSPEC filterSpec[], int nFilters, DialogType dialogType);
+bool ChooseFile(char fileName[], const char dialogTitle[], const COMDLG_FILTERSPEC filterSpec[], int nFilters, DialogType dialogType);
+bool ChooseFile(char fileName[], const char dialogTitle[], const COMDLG_FILTERSPEC filterSpec[], int nFilters, DialogType dialogType, char defaultFileName[]);
 
 int main(int argc, char * argv[])
 {
@@ -30,7 +35,7 @@ int main(int argc, char * argv[])
             {L"Audio-video Interleave Files (*.avi)",   L"*.avi"},
             {L"All Files (*.*)",    					L"*.*"}
         };
-		fileChoiceSuccess = ChooseFile(aviFileName,aviTypes, ARRAYSIZE(aviTypes), DialogTypeInput);
+		fileChoiceSuccess = ChooseFile(aviFileName, "Choose AVI file", aviTypes, ARRAYSIZE(aviTypes), DialogTypeInput);
 	}
 
     // test input file
@@ -64,7 +69,25 @@ int main(int argc, char * argv[])
             {L"Micro Fly Movie Format Files (*.ufmf)",  L"*.ufmf"},
             {L"All Files (*.*)",    					L"*.*"}
         };
-		fileChoiceSuccess = ChooseFile(ufmfFileName,ufmfTypes, ARRAYSIZE(ufmfTypes), DialogTypeOutput);
+
+        // choose default filename: (AVI filename substring between last backslash and last dot) + ".ufmf"
+        char defaultFileName[512];
+        strcpy( defaultFileName, aviFileName );
+        char* strLastDot = strrchr( defaultFileName, '.' );
+        if( strLastDot != NULL ) {
+            strcpy( strLastDot, ".ufmf" );
+            char *strLastBackslash = strrchr( defaultFileName, '\\' );
+            if( strLastBackslash != NULL ) {
+                char tmp[512];
+                strcpy( tmp, &defaultFileName[strLastBackslash + 1 - defaultFileName] );
+                strcpy( defaultFileName, tmp );
+            }
+
+            fileChoiceSuccess = ChooseFile(ufmfFileName, "Choose output file", ufmfTypes, ARRAYSIZE(ufmfTypes), DialogTypeOutput, defaultFileName);
+        }
+        else {
+            fileChoiceSuccess = ChooseFile(ufmfFileName, "Choose output file", ufmfTypes, ARRAYSIZE(ufmfTypes), DialogTypeOutput);
+        }
 	}
 
     // test output file
@@ -100,7 +123,7 @@ int main(int argc, char * argv[])
                 {L"Text Files (*.txt)", L"*.txt"},
                 {L"All Files (*.*)",    L"*.*"}
             };
-		    ChooseFile(ufmfParamsFileName,ufmfParamTypes, ARRAYSIZE(ufmfParamTypes), DialogTypeInput);
+		    ChooseFile(ufmfParamsFileName, "Choose parameters file", ufmfParamTypes, ARRAYSIZE(ufmfParamTypes), DialogTypeInput);
         }
         else
             ufmfParamsFileName[0] = '\0';
@@ -228,7 +251,12 @@ int main(int argc, char * argv[])
 }
 
 
-bool ChooseFile(char fileName[], const COMDLG_FILTERSPEC filterSpec[], int nFilters, DialogType dialogType)
+bool ChooseFile(char fileName[], const char dialogTitle[], const COMDLG_FILTERSPEC filterSpec[], int nFilters, DialogType dialogType)
+{
+    return ChooseFile( fileName, dialogTitle, filterSpec, nFilters, dialogType, NULL );
+}
+
+bool ChooseFile(char fileName[], const char dialogTitle[], const COMDLG_FILTERSPEC filterSpec[], int nFilters, DialogType dialogType, char defaultFileName[])
 {
 	HRESULT hr;
 
@@ -241,7 +269,8 @@ bool ChooseFile(char fileName[], const COMDLG_FILTERSPEC filterSpec[], int nFilt
                                   NULL, 
                                   CLSCTX_INPROC_SERVER, 
                                   IID_PPV_ARGS(&fileDialog));
-        } else {
+        }
+        else {
             hr = CoCreateInstance(CLSID_FileSaveDialog, 
                                   NULL, 
                                   CLSCTX_INPROC_SERVER, 
@@ -261,61 +290,80 @@ bool ChooseFile(char fileName[], const COMDLG_FILTERSPEC filterSpec[], int nFilt
                 hr = fileDialog->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
                 if (SUCCEEDED(hr))
                 {
-                    // Set the file types to display only. 
-                    // Notice that this is a 1-based array.
-                    hr = fileDialog->SetFileTypes(nFilters, filterSpec);
-                    if (SUCCEEDED(hr))
+                    // set dialog title
+                    wchar_t wideTitle[512];
+                    MultiByteToWideChar( CP_ACP,
+                                         MB_COMPOSITE,
+                                         dialogTitle,
+                                         -1,
+                                         wideTitle,
+                                         512 );
+                    hr = fileDialog->SetTitle( wideTitle );
+                    if( SUCCEEDED( hr ) )
                     {
-                        // Set the selected file type index to the first filter
-                        hr = fileDialog->SetFileTypeIndex(1);
+                        // Set the file types to display only. 
+                        // Notice that this is a 1-based array.
+                        hr = fileDialog->SetFileTypes(nFilters, filterSpec);
                         if (SUCCEEDED(hr))
                         {
-                            // Show the dialog
-                            hr = fileDialog->Show(NULL);
+                            // Set the selected file type index to the first filter
+                            hr = fileDialog->SetFileTypeIndex(1);
                             if (SUCCEEDED(hr))
                             {
-                                // Obtain the result once the user clicks 
-                                // the 'Open' button.
-                                // The result is an IShellItem object.
-                                IShellItem *psiResult;
-                                hr = fileDialog->GetResult(&psiResult);
-                                if (SUCCEEDED(hr))
+                                // set default file extension
+                                hr = fileDialog->SetDefaultExtension( (*filterSpec).pszSpec );
+                                if( SUCCEEDED( hr ) )
                                 {
-                                    PWSTR pszFilePath = NULL;
-                                    hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
+                                    // set default file name
+                                    if( defaultFileName != NULL ) {
+                                        wchar_t wideDefaultFileName[512];
+                                        MultiByteToWideChar( CP_ACP,
+                                                             MB_COMPOSITE,
+                                                             defaultFileName,
+                                                             -1,
+                                                             wideDefaultFileName,
+                                                             512 );
+                                        hr = fileDialog->SetFileName( wideDefaultFileName );
+                                    }
+                                    // Show the dialog
+                                    hr = fileDialog->Show(NULL);
                                     if (SUCCEEDED(hr))
                                     {
-                                        WideCharToMultiByte( CP_ACP,
-                                                                WC_COMPOSITECHECK,
-                                                                pszFilePath,
-                                                                -1,
-                                                                fileName,
-                                                                512,
-                                                                NULL,
-                                                                NULL );
-                                        CoTaskMemFree(pszFilePath);
+                                        // Obtain the result once the user clicks 
+                                        // the 'Open' button.
+                                        // The result is an IShellItem object.
+                                        IShellItem *psiResult;
+                                        hr = fileDialog->GetResult(&psiResult);
+                                        if (SUCCEEDED(hr))
+                                        {
+                                            PWSTR pszFilePath = NULL;
+                                            hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                                            if (SUCCEEDED(hr))
+                                            {
+                                                WideCharToMultiByte( CP_ACP,
+                                                                     WC_COMPOSITECHECK,
+                                                                     pszFilePath,
+                                                                     -1,
+                                                                     fileName,
+                                                                     512,
+                                                                     NULL,
+                                                                     NULL );
+                                                CoTaskMemFree(pszFilePath);
+                                            }
+                                            psiResult->Release();
+                                        }
                                     }
-                                    else fprintf( stderr, "failure 9\n" );
-                                    psiResult->Release();
                                 }
-                                else fprintf( stderr, "failure 8\n" );
                             }
-                            else fprintf( stderr, "failure 7\n" ); // user pressed "cancel"
                         }
-                        else fprintf( stderr, "failure 6\n" );
                     }
-                    else fprintf( stderr, "failure 5\n" );
                 }
-                else fprintf( stderr, "failure 4\n" );
             }
-            else fprintf( stderr, "failure 3\n" );
 		    fileDialog->Release();
 	    }
-        else fprintf( stderr, "failure 2\n" );
         CoUninitialize();
     }
-    else fprintf( stderr, "failure 1\n" );
 
     if( FAILED( hr ) ) {
         *fileName = 0;
