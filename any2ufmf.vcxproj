@@ -71,8 +71,8 @@
     <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;..\gige_record_x64;</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(OPENCV)\build\include;$(OPENCV)\build\include\opencv;..\gige_record_x64;</IncludePath>
-    <LibraryPath>$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib\amd64;$(WindowsSdkDir)lib\x64;$(OPENCV)\build\x64\vc10\lib;</LibraryPath>
+    <IncludePath>..\gige_record_x64;C:\Users\benderj\src\any2ufmf\opencv_headers\opencv;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(OPENCV)\build\include;$(OPENCV)\build\include\opencv</IncludePath>
+    <LibraryPath>C:\Users\benderj\src\any2ufmf\opencv_libs;$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib\amd64;$(WindowsSdkDir)lib\x64;$(OPENCV)\build\x64\vc10\lib</LibraryPath>
     <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;..\gige_record_x64;</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
