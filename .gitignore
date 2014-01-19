@@ -1,1 +1,10 @@
 /x64
+/Debug
+/ipch
+
+*.user
+*.aps
+*.sdf
+*.opensdf
+*.suo
+

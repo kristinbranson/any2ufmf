@@ -144,6 +144,13 @@
     <ClInclude Include="..\gige_record_x64\ufmfLogger.h" />
     <ClInclude Include="..\gige_record_x64\ufmfWriter.h" />
     <ClInclude Include="..\gige_record_x64\ufmfWriterStats.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="any2ufmf.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="drosophila-orange.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

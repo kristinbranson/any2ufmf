@@ -1,8 +1,11 @@
+#define AppVer GetFileVersion('x64\Release\any2ufmf.exe')
+
 [Setup]
 AppName=any2ufmf
-AppVersion=1.0
+AppVersion={#AppVer}
 SourceDir=x64\Release
 OutputDir=..\..
+OutputBaseFilename=any2ufmf-{#AppVer}-installer
 DefaultDirName={pf}\any2ufmf
 DefaultGroupName=any2ufmf
 DisableProgramGroupPage=yes
@@ -17,4 +20,4 @@ Source: "*.dll"; DestDir: "{app}"
 
 [Icons]
 Name: "{group}\any2ufmf"; Filename: "{app}\any2ufmf.exe";
-Name: "{userdesktop}\any2ufmf"; Filename: "{app}\any2ufme.exe";
+Name: "{userdesktop}\any2ufmf"; Filename: "{app}\any2ufmf.exe";
