@@ -4,7 +4,7 @@
 AppName=any2ufmf
 AppVersion={#AppVer}
 SourceDir=x64\Release
-OutputDir=..\..
+OutputDir=..\..\installers
 OutputBaseFilename=any2ufmf-{#AppVer}-installer
 DefaultDirName={pf}\any2ufmf
 DefaultGroupName=any2ufmf
